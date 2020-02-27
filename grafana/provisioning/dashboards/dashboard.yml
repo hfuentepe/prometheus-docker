@@ -1,0 +1,32 @@
+apiVersion: 1
+
+# It’s possible to manage dashboards in Grafana by adding one or more yaml config files in the provisioning/dashboards directory. 
+# Each config file can contain a list of dashboards providers that will load dashboards into Grafana from the local filesystem.
+
+providers:
+  # <string> an unique provider name
+- name: 'Prometheus'
+  # <int> org id. will default to orgId 1 if not specified
+  
+  orgId: 1
+  # <string, required> name of the dashboard folder. Required
+  
+  folder: ''
+  # <string, required> provider type. Required
+  
+  type: file
+  # <bool> disable dashboard deletion
+  
+  disableDeletion: false
+  # <bool> enable dashboard editing
+  
+  editable: true
+  # <int> how often Grafana will scan for changed dashboards
+  updateIntervalSeconds: 10
+  
+  # <bool> allow updating provisioned dashboards from the UI
+  allowUiUpdates: false
+  
+  options:
+    # <string, required> path to dashboard files on disk. Required
+    path: /etc/grafana/provisioning/dashboards
