@@ -6,7 +6,7 @@
   - [Instalación](##installation)
   - [Configuración Prometheus](##configuración-prometheus)
   - [Configuración Grafana](##configuración-grafana)
-    - [Contraseña Administrador] (###modificar-contraseña-administrador)
+    - [Contraseña Administrador](###modificar-contraseña-administrador)
 	- [Configuración de Datasources](###configurar-datasources)
     - [Configuración de Dashboards](###configurar-dashboards)
 
