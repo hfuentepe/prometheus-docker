@@ -39,6 +39,26 @@ scrape_configs:
     static_configs:
     - targets: ['localhost:9090']
 
+  - job_name: 'node-exporter'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    # List of DNS service discovery configurations.
+    # A DNS-based service discovery configuration allows specifying a set of DNS domain names which are periodically queried to discover a list of targets. The DNS servers to be contacted are read from /etc/resolv.conf.
+    # Info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#dns_sd_config 
+    dns_sd_configs:
+    - names:
+      - 'node-exporter'
+      type: 'A'
+      port: 9100
+
+    #static_configs:
+    #- targets: ['localhost:9100']
+
   # Configurar un job_name y sus static_config especifico por proyecto
 
   #- job_name: 'spring-actuator'
