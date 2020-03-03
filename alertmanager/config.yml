@@ -1,0 +1,25 @@
+route:
+  receiver: 'notificaciones'
+
+receivers:
+- name: 'notificaciones'
+  email_configs:
+  - to: '<gmail_account>'
+    from: '<gmail_account>'
+    smarthost: smtp.gmail.com:587
+    auth_username: '<gmail_account>'
+    auth_identity: '<gmail_account>'
+    auth_password: '<password>'
+    send_resolved: true
+#- name: 'notificaciones'
+#  slack_configs:
+#  - send_resolved: true
+#    username: '<username>'
+#    channel: '#<channel-name>'
+#    api_url: '<incomming-webhook-url>'
+
+# Para saber más ver https://prometheus.io/docs/alerting/configuration/
+# Ejemplo para enviar mails a diferentes equipos: https://github.com/prometheus/alertmanager/blob/master/doc/examples/simple.yml
+# Ejemplos de plantillas de notificaciones: https://prometheus.io/docs/alerting/notification_examples/
+# Ejemplo de configurar con slack y email. https://grafana.com/blog/2020/02/25/step-by-step-guide-to-setting-up-prometheus-alertmanager-with-slack-pagerduty-and-gmail/
+

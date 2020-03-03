@@ -21,6 +21,8 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - 9090:9090
+    links:
+      - alertmanager:alertmanager 
     networks:
       - monitoring-tier
     restart: always
@@ -46,6 +48,24 @@ services:
     networks:
       - monitoring-tier
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "4m"
+        max-file: "10"
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    networks:
+      - monitoring-tier
+    restart: always
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
     logging:
       driver: json-file
       options:

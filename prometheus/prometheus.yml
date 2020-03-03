@@ -11,6 +11,7 @@ global:
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
+  - 'alert.rules'  
   # - "first_rules.yml"
   # - "second_rules.yml"
 
@@ -19,9 +20,10 @@ rule_files:
 # Alertmanager configuration
 alerting:
   alertmanagers:
-  - static_configs:
+  - scheme: http
+    static_configs:
     - targets:
-      # - alertmanager:9093
+      - "alertmanager:9093"
 
 
 # A scrape configuration containing exactly one endpoint to scrape:
@@ -56,8 +58,22 @@ scrape_configs:
       type: 'A'
       port: 9100
 
-    #static_configs:
-    #- targets: ['localhost:9100']
+  - job_name: 'alertmanager'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    # List of DNS service discovery configurations.
+    dns_sd_configs:
+    - names:
+      - 'alertmanager'
+      type: 'A'
+      port: 9093
+
+
 
   # Configurar un job_name y sus static_config especifico por proyecto
 
