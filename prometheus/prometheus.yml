@@ -57,6 +57,21 @@ scrape_configs:
       - 'node-exporter'
       type: 'A'
       port: 9100
+  - job_name: 'cadvisor'
+    
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    # List of DNS service discovery configurations.
+    dns_sd_configs:
+    - names:
+      - 'cadvisor'
+      type: 'A'
+      port: 8080
+
 
   - job_name: 'alertmanager'
 
@@ -72,8 +87,6 @@ scrape_configs:
       - 'alertmanager'
       type: 'A'
       port: 9093
-
-
 
   # Configurar un job_name y sus static_config especifico por proyecto
 

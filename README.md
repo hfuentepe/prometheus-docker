@@ -1,5 +1,5 @@
-#Docketizar un Stack para monitorización basado en Prometheus y Grafana
 
+# Docketizar un Stack para monitorización basado en Prometheus y Grafana
 
 Índice
   - [Visión General](#visión-general)
@@ -12,20 +12,21 @@
     - [Configuración de Dashboards](#configurar-dashboards)
   - [Configuración Node Exporter](#configurar-node-exporter)
   - [Configuración Alert manager](#configurar-alertmanager)
+  - [Configuración cAdvisor](#configurar-cAdvisor)
 
 ## Visión General
 
-El objetivo principal es crear un stack para monitorización basado en [Prometheus](http://prometheus.io/) y [Grafana] (http://grafana.com) docketizado. El stack completo estará compuesto por los siguientes componentes (Marcado con X aquellos que ya se encuentran incluidos en el docker-compose):
+El objetivo principal es crear un stack para monitorización basado en [Prometheus](http://prometheus.io/) y [Grafana](http://grafana.com) docketizado. El stack completo estará compuesto por los siguientes componentes (Marcado con X aquellos que ya se encuentran incluidos en el docker-compose):
 
 - [X] **Prometheus:**
 - [X] **Grafana:** 
-- [X] **Alert Manager:** The [Alertmanager] ([https://prometheus.io/docs/alerting/alertmanager/](https://prometheus.io/docs/alerting/alertmanager/)) handles alerts sent by client applications such as the Prometheus server. It takes care of deduplicating, grouping, and routing them to the correct receiver integration such as email, PagerDuty, or OpsGenie. It also takes care of silencing and inhibition of alerts.
+- [X] **Alert Manager:** The [Alertmanager]([https://prometheus.io/docs/alerting/alertmanager/](https://prometheus.io/docs/alerting/alertmanager/)) handles alerts sent by client applications such as the Prometheus server. It takes care of deduplicating, grouping, and routing them to the correct receiver integration such as email, PagerDuty, or OpsGenie. It also takes care of silencing and inhibition of alerts.
 - [X] **Node Exporter:** The Prometheus [Node Exporter](https://prometheus.io/docs/guides/node-exporter/#monitoring-linux-host-metrics-with-the-node-exporter) exposes a wide variety of hardware- and kernel-related metrics.
-- [ ] **cAdvisor (Container Advisor):** [cAdvisor] ([https://github.com/google/cadvisor](https://github.com/google/cadvisor)) provides container users an understanding of the resource usage and performance characteristics of their running containers.
+- [X] **cAdvisor (Container Advisor):** [cAdvisor]([https://github.com/google/cadvisor](https://github.com/google/cadvisor)) provides container users an understanding of the resource usage and performance characteristics of their running containers.
 
 ## Pre-Requisitos
 
-Debe tener instalada la última versión de [Docker] (https://www.docker.com/) y [Docker-Compose] (https://docs.docker.com/compose/install/) .
+Debe tener instalada la última versión de [Docker](https://www.docker.com/) y [Docker-Compose](https://docs.docker.com/compose/install/) .
 
 ## Instalación
 
@@ -47,7 +48,7 @@ Para verificar el log de la creación del stack puede ver los logs:
 
 Para realizar personalizaciones sobre la configuración de prometheus debe ir a la carpeta */prometheus-docker/prometheus* donde se encuentra el fichero de configuración *prometheus.yml*.
 
-En este fichero podrá configurar el intervalo de scrape, alertas, alert manager y las fuentes donde vamos a obtener la información en la sección scrape_configs. Para más información puede consultar [Prometheus Configuration] (https://prometheus.io/docs/prometheus/latest/configuration/configuration/)
+En este fichero podrá configurar el intervalo de scrape, alertas, alert manager y las fuentes donde vamos a obtener la información en la sección scrape_configs. Para más información puede consultar [Prometheus Configuration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/).
 
 ## Configuración Grafana
 
@@ -61,13 +62,13 @@ En el fichero de configuración config.monitoring hemos configurado un par de pr
 
 ### Configurar Datasources
 
-El fichero que contiene los datasources de Grafana se encuentra en *prometheus-docker/grafana/provisioning/datasources/datasources.yml*. Este fichero contiene un único datasource de tipo Prometheus y con nombre Prometheus. Para más información visite [Grafana Provisioning] (https://grafana.com/docs/grafana/latest/administration/provisioning/)
+El fichero que contiene los datasources de Grafana se encuentra en *prometheus-docker/grafana/provisioning/datasources/datasources.yml*. Este fichero contiene un único datasource de tipo Prometheus y con nombre Prometheus. Para más información visite [Grafana Provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/)
 
 ### Configurar Dashboards
 
 El proyecto contiene el fichero **dashboard.yml** en la carpeta *prometheus-docker/grafana/provisioning/dashboards*. Este fichero permite posible administrar dashboards en Grafana (pueden existir varios). Cada archivo de configuración puede contener una lista de proveedores de paneles que cargarán paneles en Grafana desde el sistema de archivos local.
 
-En nuestro caso solo hemos añadido un proveedor de dashboard con el nombre Prometheus. Además en la carpeta hay varios dashboards en formato json que se cargan de forma automática. Puede [crear sus propios] (https://grafana.com/docs/grafana/latest/features/dashboard/dashboards/) Dashboards o descargarlos de la [página oficial de grafana] (https://grafana.com/grafana/dashboards) .
+En nuestro caso solo hemos añadido un proveedor de dashboard con el nombre Prometheus. Además en la carpeta hay varios dashboards en formato json que se cargan de forma automática. Puede [crear sus propios](https://grafana.com/docs/grafana/latest/features/dashboard/dashboards/) Dashboards o descargarlos de la [página oficial de grafana](https://grafana.com/grafana/dashboards) .
 
 En nuestro caso hemos descargado varios dashboards de la página oficial y en algunos de ellos hemos realizado una modificación para que se carguen correctamente y no tengamos errores porque no encuentra variables. Los dashboards modificados son jvm-micrometer_rev9.json y spring-boot-statistic_rev2.json. En ambos casos los dashboards tiene una **variable ${DS_PROMETHEUS}** para establecer el Datasource cuando se carga desde la UI de Grafana. Hemos **reemplazado** el valor ${DS_PROMETHEUS} por el nombre de nuestro Datasource: **Prometheus**
 
@@ -138,3 +139,33 @@ Por ultimo, vamos a indicar a Prometheus que reglas tiene que cargar y donde se 
         static_configs:
         - targets:
           - "alertmanager:9093"
+## Configurar cAdvisor
+
+En el stack hemos añadido cAdvisor para obtener información de los contenedores Docker. Para ello hemos añadido un nuevo servicio con nombre cadvisor en docker-compose.yml con al siguiente configuración:
+
+    cadvisor:
+        image: google/cadvisor:latest
+        container_name: cadvisor
+        volumes:
+          - /:/rootfs:ro
+          - /var/run:/var/run:ro
+          - /sys:/sys:ro
+          - /var/lib/docker/:/var/lib/docker:ro
+          - /dev/disk/:/dev/disk:ro
+        ports:
+          - 8081:8080
+        networks:
+          - monitoring-tier
+        restart: always
+
+Además para que Prometheus obtenga la información del cAdvisor debemos añadir un nuevo job en el fichero prometheus.yml:
+ 
+    - job_name: 'cadvisor'
+        scrape_interval: 5s
+        dns_sd_configs:
+        - names:
+          - 'cadvisor'
+          type: 'A'
+          port: 8080
+
+Por ultimo, hemos añadido un nuevo [Dashboard para monitorizar Docker](https://grafana.com/grafana/dashboards/893). Este dashboard lo hemos añadido en la carpeta *prometheus-docker/grafana/provisioning/dashboards* con el nombre *docker_rev5.json*.

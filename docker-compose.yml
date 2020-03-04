@@ -22,7 +22,29 @@ services:
     ports:
       - 9090:9090
     links:
+      - cadvisor:cadvisor
       - alertmanager:alertmanager 
+    depends_on:
+      - cadvisor
+    networks:
+      - monitoring-tier
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "4m"
+        max-file: "10"
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - 8081:8080
     networks:
       - monitoring-tier
     restart: always
